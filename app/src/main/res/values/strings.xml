@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Perfect Pitch</string>
+
+    <!-- nav -->
+    <string name="tab_label_dashboard">Dashboard</string>
+    <string name="tab_label_quiz">Quiz</string>
+
+    <!-- dashboard fragment -->
+    <string name="dashboard_title">Your stats</string>
+
+    <!-- quiz fragment -->
+    <string name="quiz_title">This is quiz</string>
+    <string name="btn_label_play">Play</string>
+    <string name="result_text_error">Error</string>
+    <string name="result_text_correct">Correct! The answer is %1$s</string>
+    <string name="result_text_wrong">Wrong! The question is %1$s, your answer is %2$s</string>
+    <string name="result_text_waiting">Waiting for answer...</string>
+
+    <!-- piano keys -->
+    <string name="a">A</string>
+    <string name="ab">Ab</string>
+    <string name="b">B</string>
+    <string name="bb">Bb</string>
+    <string name="c">C</string>
+    <string name="d">D</string>
+    <string name="db">Db</string>
+    <string name="e">E</string>
+    <string name="eb">Eb</string>
+    <string name="f">F</string>
+    <string name="g">G</string>
+    <string name="gb">Gb</string>
+</resources>
