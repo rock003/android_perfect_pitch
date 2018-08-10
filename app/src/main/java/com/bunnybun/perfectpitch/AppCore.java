@@ -14,7 +14,7 @@ public class AppCore implements Serializable {
     private List<Note> notes;
     private String[] questionNotes;
 
-    private int numOfSoundsToPlay = 3;
+    private int numOfSoundsToPlay = 1;
 
 	private AppCore() {
 	    if (instance != null) {

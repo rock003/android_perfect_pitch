@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -42,6 +43,7 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
     TextView questionTextView;
     TextView resultTextView;
     TextView progressTextView;
+    EditText settingNumNoteView;
 
     OnQuizEndListener quizEndCallback;
 
@@ -61,6 +63,7 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         questionTextView = (TextView) view.findViewById(R.id.questionText);
         resultTextView = (TextView) view.findViewById(R.id.resultText);
         progressTextView = (TextView) view.findViewById(R.id.progressText);
+        settingNumNoteView = (EditText) view.findViewById(R.id.settingNumNotes);
 
         waitingForInput = false;
         appCore = AppCore.getInstance();
@@ -290,6 +293,16 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
     public void startQuiz() {
         // if not waiting for input, it's a new quiz
         if (waitingForInput == false) {
+            int numNotes = Integer.parseInt(settingNumNoteView.getText().toString());
+
+            if (numNotes == 0 || numNotes >= appCore.SOUNDS.length) {
+                return;
+            } else {
+                appCore.setNumOfSoundsToPlay(numNotes);
+
+                settingNumNoteView.setFocusable(false);
+            }
+
             // remove and reset answers and labels
             currentAnswerIndex = 0;
             answers = new ArrayList<String>();
@@ -314,5 +327,7 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         appCore.resetQuestionNotes();
 
         quizEndCallback.onQuizEnd();
+
+        settingNumNoteView.setFocusableInTouchMode(true);
     }
 }
