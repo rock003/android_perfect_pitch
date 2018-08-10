@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +37,7 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
 
     MediaPlayer[] mediaPlayers;
     ImageButton playButton;
-    TextView fileNameTextView;
+    TextView questionTextView;
     TextView resultTextView;
     TextView statTextView;
     TextView progressTextView;
@@ -50,7 +51,7 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quiz, container, false);
         playButton = (ImageButton) view.findViewById(R.id.playButton);
-        fileNameTextView = (TextView) view.findViewById(R.id.fileNameText);
+        questionTextView = (TextView) view.findViewById(R.id.questionText);
         resultTextView = (TextView) view.findViewById(R.id.resultText);
         statTextView = (TextView) view.findViewById(R.id.statText);
         progressTextView = (TextView) view.findViewById(R.id.progressText);
@@ -97,84 +98,84 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
             case R.id.btn_c:
                 Log.v(LOG_TAG, "button c clicked");
 
-                answerNote = "c";
+                answerNote = "C";
 
                 break;
 
             case R.id.btn_d:
                 Log.v(LOG_TAG, "button d clicked");
 
-                answerNote = "d";
+                answerNote = "D";
 
                 break;
 
             case R.id.btn_e:
                 Log.v(LOG_TAG, "button e clicked");
 
-                answerNote = "e";
+                answerNote = "E";
 
                 break;
 
             case R.id.btn_f:
                 Log.v(LOG_TAG, "button f clicked");
 
-                answerNote = "f";
+                answerNote = "F";
 
                 break;
 
             case R.id.btn_g:
                 Log.v(LOG_TAG, "button g clicked");
 
-                answerNote = "g";
+                answerNote = "G";
 
                 break;
 
             case R.id.btn_a:
                 Log.v(LOG_TAG, "button a clicked");
 
-                answerNote = "a";
+                answerNote = "A";
 
                 break;
 
             case R.id.btn_b:
                 Log.v(LOG_TAG, "button b clicked");
 
-                answerNote = "b";
+                answerNote = "B";
 
                 break;
 
             case R.id.btn_db:
                 Log.v(LOG_TAG, "button db clicked");
 
-                answerNote = "db";
+                answerNote = "Db";
 
                 break;
 
             case R.id.btn_eb:
                 Log.v(LOG_TAG, "button eb clicked");
 
-                answerNote = "eb";
+                answerNote = "Eb";
 
                 break;
 
             case R.id.btn_gb:
                 Log.v(LOG_TAG, "button gb clicked");
 
-                answerNote = "gb";
+                answerNote = "Gb";
 
                 break;
 
             case R.id.btn_ab:
                 Log.v(LOG_TAG, "button ab clicked");
 
-                answerNote = "ab";
+                answerNote = "Ab";
 
                 break;
 
             case R.id.btn_bb:
                 Log.v(LOG_TAG, "button bb clicked");
 
-                answerNote = "bb";
+                answerNote = "Bb";
 
                 break;
 
@@ -191,11 +192,11 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
             progressTextView.setText(getResources().getString(getResources().getIdentifier("progress_text_waiting", "string", getActivity().getPackageName()), currentAnswerIndex, appCore.getNumOfSoundsToPlay()));
 
             if (Arrays.asList(appCore.getQuestionNotes()).contains(answerNote)) {
-                resultText += getResources().getString(getResources().getIdentifier("result_text_correct", "string", getActivity().getPackageName()), appCore.firstLetterUppercase(answerNote)) + " ";
+                resultText += getResources().getString(getResources().getIdentifier("result_text_correct", "string", getActivity().getPackageName()), answerNote) + " ";
 
                 appCore.updateNoteStat(answerNote, true);
             } else {
-                resultText += getResources().getString(getResources().getIdentifier("result_text_wrong", "string", getActivity().getPackageName()), appCore.firstLetterUppercase(answerNote)) + " ";
+                resultText += getResources().getString(getResources().getIdentifier("result_text_wrong", "string", getActivity().getPackageName()), answerNote) + " ";
             }
 
             resultTextView.setText(resultText.trim());
@@ -204,6 +205,8 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         }
 
         if (currentAnswerIndex == appCore.getNumOfSoundsToPlay()) {
+            questionTextView.setText(TextUtils.join(", ", appCore.getQuestionNotes()));
+
             updateWrongAnswerStat();
 
             endQuiz();
@@ -265,14 +268,9 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         mediaPlayers = new MediaPlayer[questionNotes.length];
         String packageName = getActivity().getPackageName();
 
-        // TODO: show the question note name for testing, remove later
-        String questions = "";
-
         // setup media players
         for (int i = 0; i < questionNotes.length; i++) {
-            int resourceId = getResources().getIdentifier(questionNotes[i], "raw", packageName);
-
-            questions += appCore.firstLetterUppercase(questionNotes[i] + " ");
+            int resourceId = getResources().getIdentifier(questionNotes[i].toLowerCase(), "raw", packageName);
 
             MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), resourceId);
 
@@ -289,9 +287,6 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
 
         // play from the first one
         mediaPlayers[0].start();
-
-        // TODO: show the question note name for testing, remove later
-        fileNameTextView.setText(questions);
 
         mediaPlayers[questionNotes.length - 1].setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -312,6 +307,7 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
             progressTextView.setText(getResources().getString(getResources().getIdentifier("progress_text_waiting", "string", getActivity().getPackageName()), currentAnswerIndex, appCore.getNumOfSoundsToPlay()));
             resultTextView.setText(resultText);
             statTextView.setText(appCore.generateStatText());
+            questionTextView.setText("");
 
             appCore.resetQuestionNotes();
         }

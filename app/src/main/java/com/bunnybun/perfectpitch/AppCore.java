@@ -9,7 +9,7 @@ import java.util.Random;
 public class AppCore implements Serializable {
 	private static volatile AppCore instance;
 
-    final static String[] SOUNDS = {"a", "ab", "b", "bb", "c", "d", "db", "e", "eb", "f", "g", "gb"};
+    final static String[] SOUNDS = {"A", "Ab", "B", "Bb", "C", "D", "Db", "E", "Eb", "F", "G", "Gb"};
 
     private List<Note> notes;
     private String[] questionNotes;
@@ -117,19 +117,19 @@ public class AppCore implements Serializable {
 	    questionNotes = null;
     }
 
-    public String firstLetterUppercase(String str) {
-	    String result = "";
-
-	    if (str.length() > 0) {
-	        if (str.length() == 1) {
-                result = str.toUpperCase();
-            } else {
-	            result = str.substring(0, 1).toUpperCase() + str.substring(1);
-            }
-        }
-
-	    return result;
-    }
+//    public String firstLetterUppercase(String str) {
+//	    String result = "";
+//
+//	    if (str.length() > 0) {
+//	        if (str.length() == 1) {
+//                result = str.toUpperCase();
+//            } else {
+//	            result = str.substring(0, 1).toUpperCase() + str.substring(1);
+//            }
+//        }
+//
+//	    return result;
+//    }
 
     public void updateNoteStat(String name, boolean correct) {
 	    Note note = getNoteByName(name);
@@ -141,7 +141,7 @@ public class AppCore implements Serializable {
         String text = "";
 
         for (Note n : notes) {
-            text += firstLetterUppercase(n.getName()) + ": " + n.getNumCorrect() + "/" + n.getNumTotal() + " " + String.format("%.2f", n.getCorrectPercentage()) + "%" + System.getProperty("line.separator");
+            text += n.getName() + ": " + n.getNumCorrect() + "/" + n.getNumTotal() + " " + String.format("%.2f", n.getCorrectPercentage()) + "%" + System.getProperty("line.separator");
         }
 
         return text;
