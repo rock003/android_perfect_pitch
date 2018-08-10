@@ -2,7 +2,9 @@ package com.bunnybun.perfectpitch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class AppCore implements Serializable {
 	private static volatile AppCore instance;
@@ -10,6 +12,9 @@ public class AppCore implements Serializable {
     final static String[] SOUNDS = {"a", "ab", "b", "bb", "c", "d", "db", "e", "eb", "f", "g", "gb"};
 
     private List<Note> notes;
+    private String[] questionNotes;
+
+    private int numOfSoundsToPlay = 3;
 
 	private AppCore() {
 	    if (instance != null) {
@@ -55,12 +60,61 @@ public class AppCore implements Serializable {
         return found;
     }
 
+    private int randomInt(int high) {
+	    Random random = new Random();
+	    int low = 0;
+	    int result = 0;
+
+	    if (high > 0) {
+	        result = random.nextInt(high - low) + low;
+        }
+
+        return result;
+    }
+
+    private String[] generateQuestionNotes(int num) {
+        String[] result = new String[num];
+        ArrayList<String> soundsCopy = new ArrayList<String>(Arrays.asList(SOUNDS));
+
+        for (int i = 0; i < num; i++) {
+            int randomIndex = randomInt(soundsCopy.size());
+
+            result[i] = soundsCopy.get(randomIndex);
+
+            soundsCopy.remove(randomIndex);
+        }
+
+        return result;
+    }
+
+    // TODO: remove this later, maybe don't need this
     public static String[] getSOUNDS() {
         return SOUNDS;
     }
 
+    // TODO: remove this later, maybe don't need this
     public List<Note> getNotes() {
         return notes;
+    }
+
+    public int getNumOfSoundsToPlay() {
+        return numOfSoundsToPlay;
+    }
+
+    public void setNumOfSoundsToPlay(int numOfSoundsToPlay) {
+        this.numOfSoundsToPlay = numOfSoundsToPlay;
+    }
+
+    public String[] getQuestionNotes() {
+	    if (questionNotes == null) {
+	        questionNotes = generateQuestionNotes(numOfSoundsToPlay);
+        }
+
+        return questionNotes;
+    }
+
+    public void resetQuestionNotes() {
+	    questionNotes = null;
     }
 
     public String firstLetterUppercase(String str) {

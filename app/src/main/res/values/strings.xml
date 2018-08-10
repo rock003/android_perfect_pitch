@@ -12,9 +12,9 @@
     <string name="quiz_title">This is quiz</string>
     <string name="btn_label_play">Play</string>
     <string name="result_text_error">Error</string>
-    <string name="result_text_correct">Correct! The answer is %1$s</string>
-    <string name="result_text_wrong">Wrong! The question is %1$s, your answer is %2$s</string>
-    <string name="result_text_waiting">Waiting for answer...</string>
+    <string name="result_text_correct">%1$s is Correct!</string>
+    <string name="result_text_wrong">%1$s is Wrong!</string>
+    <string name="progress_text_waiting">Answered %1$d / %2$d</string>
 
     <!-- piano keys -->
     <string name="a">A</string>

@@ -13,7 +13,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -21,23 +22,24 @@ import java.util.Random;
  */
 public class QuizFragment extends Fragment implements View.OnClickListener {
     final static String LOG_TAG = "QuizFragment";
-    final static String[] SOUNDS = AppCore.getSOUNDS();
     final static int MULTIPLE_CLICK_THRESHOLD = 1000;
 
     private long lastClickTime = 0;
     private long lastPlayTime = 0;
 
-    // quiz related
     private boolean waitingForInput;
-    private String questionNote;
+    private ArrayList<String> answers;
+    private int currentAnswerIndex;
+    private String resultText;
 
     private AppCore appCore;
 
-    MediaPlayer mediaPlayer;
+    MediaPlayer[] mediaPlayers;
     ImageButton playButton;
     TextView fileNameTextView;
     TextView resultTextView;
     TextView statTextView;
+    TextView progressTextView;
 
     public QuizFragment() {
         // Required empty public constructor
@@ -51,6 +53,7 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         fileNameTextView = (TextView) view.findViewById(R.id.fileNameText);
         resultTextView = (TextView) view.findViewById(R.id.resultText);
         statTextView = (TextView) view.findViewById(R.id.statText);
+        progressTextView = (TextView) view.findViewById(R.id.progressText);
 
         waitingForInput = false;
         appCore = AppCore.getInstance();
@@ -59,14 +62,15 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onClick(View v) {
-            if (SystemClock.elapsedRealtime() - lastPlayTime < MULTIPLE_CLICK_THRESHOLD) {
-                return;
-            }
+                if (SystemClock.elapsedRealtime() - lastPlayTime < MULTIPLE_CLICK_THRESHOLD) {
+                    return;
+                }
 
-            lastPlayTime = SystemClock.elapsedRealtime();
+                lastPlayTime = SystemClock.elapsedRealtime();
 
-            playButton.setEnabled(false);
-            startQuiz();
+                playButton.setEnabled(false);
+
+                startQuiz();
             }
         });
 
@@ -181,20 +185,29 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         }
 
         if (answerNote != null) {
-            if (answerNote == questionNote) {
-                resultTextView.setText(getResources().getString(getResources().getIdentifier("result_text_correct", "string", getActivity().getPackageName()), answerNote));
+            answers.add(answerNote);
+            currentAnswerIndex++;
+
+            progressTextView.setText(getResources().getString(getResources().getIdentifier("progress_text_waiting", "string", getActivity().getPackageName()), currentAnswerIndex, appCore.getNumOfSoundsToPlay()));
+
+            if (Arrays.asList(appCore.getQuestionNotes()).contains(answerNote)) {
+                resultText += getResources().getString(getResources().getIdentifier("result_text_correct", "string", getActivity().getPackageName()), appCore.firstLetterUppercase(answerNote)) + " ";
 
                 appCore.updateNoteStat(answerNote, true);
             } else {
-                resultTextView.setText(getResources().getString(getResources().getIdentifier("result_text_wrong", "string", getActivity().getPackageName()), questionNote, answerNote));
-
-                appCore.updateNoteStat(questionNote, false);
+                resultText += getResources().getString(getResources().getIdentifier("result_text_wrong", "string", getActivity().getPackageName()), appCore.firstLetterUppercase(answerNote)) + " ";
             }
+
+            resultTextView.setText(resultText.trim());
         } else {
             resultTextView.setText(getResources().getString(getResources().getIdentifier("result_text_error", "string", getActivity().getPackageName())));
         }
 
-        endQuiz();
+        if (currentAnswerIndex == appCore.getNumOfSoundsToPlay()) {
+            updateWrongAnswerStat();
+
+            endQuiz();
+        }
     }
 
     private void attachButtonClickListeners(View view) {
@@ -225,62 +238,94 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         bb.setOnClickListener(this);
     }
 
-    public String randomSoundResourcesName() {
-        Random random = new Random();
+    private void releaseMediaPlayers() {
+        for (int i = 0; i < mediaPlayers.length; i++) {
+            if (mediaPlayers[i] != null) {
+                if (mediaPlayers[i].isPlaying()) {
+                    mediaPlayers[i].stop();
+                }
 
-        int low = 0;
-        int high = SOUNDS.length;
-        int index = random.nextInt(high - low) + low;
+                mediaPlayers[i].release();
+                mediaPlayers[i] = null;
+            }
+        }
 
-        return SOUNDS[index];
+        playButton.setEnabled(true);
     }
 
-    public void playSound(String resourceName) {
-        int resourceId = getResources().getIdentifier(resourceName, "raw", getActivity().getPackageName());
+    private void updateWrongAnswerStat() {
+        for (String note : appCore.getQuestionNotes()) {
+            if (answers.contains(note) == false) {
+                appCore.updateNoteStat(note, false);
+            }
+        }
+    }
 
-        fileNameTextView.setText(resourceName);
+    public void playSounds(String[] questionNotes) {
+        mediaPlayers = new MediaPlayer[questionNotes.length];
+        String packageName = getActivity().getPackageName();
 
-        mediaPlayer = MediaPlayer.create(getActivity(), resourceId);
-        mediaPlayer.start();
+        // TODO: show the question note name for testing, remove later
+        String questions = "";
 
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        // setup media players
+        for (int i = 0; i < questionNotes.length; i++) {
+            int resourceId = getResources().getIdentifier(questionNotes[i], "raw", packageName);
+
+            questions += appCore.firstLetterUppercase(questionNotes[i] + " ");
+
+            MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), resourceId);
+
+            // TODO: find a way to achieve this?
+//            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(0.75f));
+
+            mediaPlayers[i] = mediaPlayer;
+        }
+
+        // setup next media players
+        for (int i = 0; i < questionNotes.length - 1; i++) {
+            mediaPlayers[i].setNextMediaPlayer(mediaPlayers[i + 1]);
+        }
+
+        // play from the first one
+        mediaPlayers[0].start();
+
+        // TODO: show the question note name for testing, remove later
+        fileNameTextView.setText(questions);
+
+        mediaPlayers[questionNotes.length - 1].setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                mp.release();
-                mediaPlayer = null;
-
-                playButton.setEnabled(true);
+                releaseMediaPlayers();
             }
         });
     }
 
-    public void stopMediaPlayer() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            playButton.setEnabled(true);
-        }
-    }
-
     public void startQuiz() {
-        resultTextView.setText(getResources().getString(getResources().getIdentifier("result_text_waiting", "string", getActivity().getPackageName())));
-        statTextView.setText(appCore.generateStatText());
-
         // if not waiting for input, it's a new quiz
         if (waitingForInput == false) {
-            questionNote = randomSoundResourcesName();
+            // remove and reset answers and labels
+            currentAnswerIndex = 0;
+            answers = new ArrayList<String>();
+            resultText = "";
+
+            progressTextView.setText(getResources().getString(getResources().getIdentifier("progress_text_waiting", "string", getActivity().getPackageName()), currentAnswerIndex, appCore.getNumOfSoundsToPlay()));
+            resultTextView.setText(resultText);
+            statTextView.setText(appCore.generateStatText());
+
+            appCore.resetQuestionNotes();
         }
 
-        playSound(questionNote);
+        playSounds(appCore.getQuestionNotes());
 
         waitingForInput = true;
     }
 
     public void endQuiz() {
-        stopMediaPlayer();
+        releaseMediaPlayers();
 
         waitingForInput = false;
-        questionNote = null;
+        appCore.resetQuestionNotes();
 
         statTextView.setText(appCore.generateStatText());
     }
