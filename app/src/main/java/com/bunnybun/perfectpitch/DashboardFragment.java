@@ -25,9 +25,11 @@ import java.io.InputStreamReader;
 public class DashboardFragment extends Fragment {
     final static String DATA_FILE_NAME = "user_data";
 
-    Context mainContext;
+    private AppCore appCore;
 
-    String user_data;
+//    Context mainContext;
+
+//    String user_data;
     TextView statsTextView;
 
     public DashboardFragment() {
@@ -39,7 +41,17 @@ public class DashboardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
-//        statsTextView = (TextView) view.findViewById(R.id.stats);
+
+        // this to fix new fragment on top of old fragment issue
+        if (container != null) {
+            container.removeAllViews();
+        }
+
+        appCore = AppCore.getInstance();
+
+        statsTextView = (TextView) view.findViewById(R.id.stats);
+
+        statsTextView.setText(appCore.generateStatText());
 //
 //        statsTextView.setText(user_data);
 
@@ -55,31 +67,31 @@ public class DashboardFragment extends Fragment {
 //        readUserData();
     }
 
-    public void readUserData() {
-        try {
-            FileInputStream inputStream = mainContext.openFileInput(DATA_FILE_NAME);
-
-            if (inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                StringBuilder stringBuilder = new StringBuilder();
-                String receiveStr = "";
-
-                user_data = "";
-
-
-                while ((receiveStr = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(receiveStr);
-                }
-
-                inputStream.close();
-
-                user_data = stringBuilder.toString();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void readUserData() {
+//        try {
+//            FileInputStream inputStream = mainContext.openFileInput(DATA_FILE_NAME);
+//
+//            if (inputStream != null) {
+//                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+//                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//                StringBuilder stringBuilder = new StringBuilder();
+//                String receiveStr = "";
+//
+//                user_data = "";
+//
+//
+//                while ((receiveStr = bufferedReader.readLine()) != null) {
+//                    stringBuilder.append(receiveStr);
+//                }
+//
+//                inputStream.close();
+//
+//                user_data = stringBuilder.toString();
+//            }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

@@ -141,7 +141,7 @@ public class AppCore implements Serializable {
         String text = "";
 
         for (Note n : notes) {
-            text += n.getName() + ": " + n.getNumCorrect() + "/" + n.getNumTotal() + " " + String.format("%.2f", n.getCorrectPercentage()) + "%" + System.getProperty("line.separator");
+            text += n.getName() + ": " + n.getNumCorrect() + " / " + n.getNumTotal() + " --- " + String.format("%.2f", n.getCorrectPercentage()) + "%" + System.getProperty("line.separator") + System.getProperty("line.separator");
         }
 
         return text;

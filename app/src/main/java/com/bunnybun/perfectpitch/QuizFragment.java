@@ -1,6 +1,8 @@
 package com.bunnybun.perfectpitch;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -39,11 +41,16 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
     ImageButton playButton;
     TextView questionTextView;
     TextView resultTextView;
-    TextView statTextView;
     TextView progressTextView;
+
+    OnQuizEndListener quizEndCallback;
 
     public QuizFragment() {
         // Required empty public constructor
+    }
+
+    public interface OnQuizEndListener {
+        void onQuizEnd();
     }
 
     @Override
@@ -53,7 +60,6 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         playButton = (ImageButton) view.findViewById(R.id.playButton);
         questionTextView = (TextView) view.findViewById(R.id.questionText);
         resultTextView = (TextView) view.findViewById(R.id.resultText);
-        statTextView = (TextView) view.findViewById(R.id.statText);
         progressTextView = (TextView) view.findViewById(R.id.progressText);
 
         waitingForInput = false;
@@ -81,6 +87,15 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof OnQuizEndListener) {
+            quizEndCallback = (OnQuizEndListener) context;
+        }
+    }
+
+    @Override
     public void onClick(View v) {
         if (waitingForInput == false) {
             return;
@@ -96,85 +111,61 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
 
         switch (v.getId()) {
             case R.id.btn_c:
-                Log.v(LOG_TAG, "button c clicked");
-
                 answerNote = "C";
 
                 break;
 
             case R.id.btn_d:
-                Log.v(LOG_TAG, "button d clicked");
-
                 answerNote = "D";
 
                 break;
 
             case R.id.btn_e:
-                Log.v(LOG_TAG, "button e clicked");
-
                 answerNote = "E";
 
                 break;
 
             case R.id.btn_f:
-                Log.v(LOG_TAG, "button f clicked");
-
                 answerNote = "F";
 
                 break;
 
             case R.id.btn_g:
-                Log.v(LOG_TAG, "button g clicked");
-
                 answerNote = "G";
 
                 break;
 
             case R.id.btn_a:
-                Log.v(LOG_TAG, "button a clicked");
-
                 answerNote = "A";
 
                 break;
 
             case R.id.btn_b:
-                Log.v(LOG_TAG, "button b clicked");
-
                 answerNote = "B";
 
                 break;
 
             case R.id.btn_db:
-                Log.v(LOG_TAG, "button db clicked");
-
                 answerNote = "Db";
 
                 break;
 
             case R.id.btn_eb:
-                Log.v(LOG_TAG, "button eb clicked");
-
                 answerNote = "Eb";
 
                 break;
 
             case R.id.btn_gb:
-                Log.v(LOG_TAG, "button gb clicked");
-
                 answerNote = "Gb";
 
                 break;
 
             case R.id.btn_ab:
-                Log.v(LOG_TAG, "button ab clicked");
-
                 answerNote = "Ab";
 
                 break;
 
             case R.id.btn_bb:
-                Log.v(LOG_TAG, "button bb clicked");
-
                 answerNote = "Bb";
 
                 break;
@@ -306,7 +297,6 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
 
             progressTextView.setText(getResources().getString(getResources().getIdentifier("progress_text_waiting", "string", getActivity().getPackageName()), currentAnswerIndex, appCore.getNumOfSoundsToPlay()));
             resultTextView.setText(resultText);
-            statTextView.setText(appCore.generateStatText());
             questionTextView.setText("");
 
             appCore.resetQuestionNotes();
@@ -323,6 +313,6 @@ public class QuizFragment extends Fragment implements View.OnClickListener {
         waitingForInput = false;
         appCore.resetQuestionNotes();
 
-        statTextView.setText(appCore.generateStatText());
+        quizEndCallback.onQuizEnd();
     }
 }

@@ -3,6 +3,7 @@ package com.bunnybun.perfectpitch;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements QuizFragment.OnQuizEndListener {
     final static String LOG_TAG = MainActivity.class.getSimpleName();
     final static String DATA_FILE_NAME = "user_data";
     final static String[] SOUNDS = AppCore.getSOUNDS();
@@ -59,6 +60,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onQuizEnd() {
+        DashboardFragment dashboardFragment = new DashboardFragment();
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.dashboard_fragment, dashboardFragment);
+        transaction.commit();
     }
 
     private void loadUserData() {
